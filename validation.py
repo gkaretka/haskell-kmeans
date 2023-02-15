@@ -15,21 +15,21 @@ kmeans = KMeans(n_clusters = 5, init = 'k-means++', random_state = 42)
 y_kmeans = kmeans.fit_predict(X)
 
 # Visualising the clusters
-marker_size = 100
+MARKER_SIZE = 100
 
 plt.figure(figsize=(15,7))
 sns.scatterplot(x=X[y_kmeans == 0, 0], y=X[y_kmeans == 0, 1],
-                color = 'yellow', label = 'Cluster 1',s=marker_size)
+                color = 'yellow', label = 'Cluster 1',s=MARKER_SIZE)
 sns.scatterplot(x=X[y_kmeans == 1, 0], y=X[y_kmeans == 1, 1],
-                color = 'blue', label = 'Cluster 2',s=marker_size)
+                color = 'blue', label = 'Cluster 2',s=MARKER_SIZE)
 sns.scatterplot(x=X[y_kmeans == 2, 0], y=X[y_kmeans == 2, 1],
-                color = 'green', label = 'Cluster 3',s=marker_size)
+                color = 'green', label = 'Cluster 3',s=MARKER_SIZE)
 sns.scatterplot(x=X[y_kmeans == 3, 0], y=X[y_kmeans == 3, 1],
-                color = 'grey', label = 'Cluster 4',s=marker_size)
+                color = 'grey', label = 'Cluster 4',s=MARKER_SIZE)
 sns.scatterplot(x=X[y_kmeans == 4, 0], y=X[y_kmeans == 4, 1],
-                color = 'orange', label = 'Cluster 5',s=marker_size)
+                color = 'orange', label = 'Cluster 5',s=MARKER_SIZE)
 sns.scatterplot(x=kmeans.cluster_centers_[:, 0], y=kmeans.cluster_centers_[:, 1],
-                color = 'red', label = 'Centroids',s=5*marker_size,marker=',')
+                color = 'red', label = 'Centroids',s=5*MARKER_SIZE,marker=',')
 
 plt.grid(False)
 plt.title('Clusters of customers')
