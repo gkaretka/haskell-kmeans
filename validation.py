@@ -1,9 +1,11 @@
+"""Validation for Haskell implementation of k-means
+based on: https://www.kaggle.com/code/shrutimechlearn/step-by-step-kmeans-explained-in-detail/notebook
+"""
+
 from sklearn.cluster import KMeans
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
-
-# https://www.kaggle.com/code/shrutimechlearn/step-by-step-kmeans-explained-in-detail/notebook
 
 df = pd.read_csv('./data/data.csv')
 df.drop_duplicates(inplace=True)
@@ -11,7 +13,9 @@ df.drop_duplicates(inplace=True)
 # using only Spending_Score and income variable for easy visualisation
 X = df.iloc[:, [2, 3]].values
 
-kmeans = KMeans(n_clusters = 5, init = 'k-means++', random_state = 42)
+K = 5
+
+kmeans = KMeans(n_clusters = K, init = 'k-means++', random_state = 42)
 y_kmeans = kmeans.fit_predict(X)
 
 # Visualising the clusters
