@@ -14,11 +14,15 @@ data DPoint = DPoint Vect | Cluster deriving (Eq, Ord, Show)
 -- Vector addition (5, 1, 3) + (4, 9, 3) = (9, 10, 6)
 vp :: Vect -> Vect -> Vect
 vp [] [] = []
+vp [] _ = []
+vp _ [] = []
 vp (x:xs) (y:ys) = (x+y) : vp xs ys
 
 -- Vector subtraction (5, 1, 3) - (4, 9, 3) = (-1, -8, 0)
 vm :: Vect -> Vect -> Vect
 vm [] [] = []
+vm [] _ = []
+vm _ [] = []
 vm (x:xs) (y:ys) = (x-y) : vp xs ys
 
 -- Vector norm (1, 5, 6, ...) = 1^2 + 5^2 + 6^2 ...

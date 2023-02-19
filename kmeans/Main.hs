@@ -28,9 +28,9 @@ main = do
     let selected_features = map (\x -> read x :: Int) (H.parseCsvLine sel_features)
     putStrLn ("Selected features\n" ++ intercalate ", " (H.getIndexedValues features selected_features))
 
-    let selected_data = foldr (\x acc -> (V.csvToVect x selected_features) : acc) [] (drop 1 $ lines content)
+    let selected_data = map (\ x -> V.csvToVect x selected_features) (drop 1 $ lines content)
     V.vectListToCsv selected_data
-    
+
     -- close file
     hClose handle
 
