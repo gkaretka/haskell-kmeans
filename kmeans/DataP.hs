@@ -1,7 +1,10 @@
 module DataP (
     DPoint, Vect, Cluster,
-    vp, vm, vnorm, csvToVect,
-    vectListToCsv
+    vp, vm, vnorm,
+    euclideanDistance,
+    euclideanDistanceList,
+    csvToVect,
+    vectListToCsv,
 ) where
 
 import qualified Helpers as H
@@ -9,7 +12,16 @@ import Data.List
 
 type Cluster = Int
 type Vect = [Float]
-data DPoint = DPoint Vect | Cluster deriving (Eq, Ord, Show)
+data DPoint = DPoint Vect Cluster deriving (Eq, Ord, Show)
+
+-- Euclidean distance between two vectors (points)
+euclideanDistance :: Vect -> Vect -> Float
+euclideanDistance a b = vnorm (a `vm` b)
+
+-- Euclidean  distance between list of vectors and vector (point)
+euclideanDistanceList :: [Vect] -> Vect -> [Float]
+euclideanDistanceList [] _ = []
+euclideanDistanceList dat pt = map (euclideanDistance pt) dat
 
 -- Vector addition (5, 1, 3) + (4, 9, 3) = (9, 10, 6)
 vp :: Vect -> Vect -> Vect
@@ -23,7 +35,7 @@ vm :: Vect -> Vect -> Vect
 vm [] [] = []
 vm [] _ = []
 vm _ [] = []
-vm (x:xs) (y:ys) = (x-y) : vp xs ys
+vm (x:xs) (y:ys) = (x-y) : vm xs ys
 
 -- Vector norm (1, 5, 6, ...) = 1^2 + 5^2 + 6^2 ...
 vnorm :: Vect -> Float
@@ -35,7 +47,8 @@ vnorm xs = sum $ map (^2) xs
 csvToVect :: String -> [Int] -> Vect
 csvToVect str = map (\x -> read x::Float) . H.getIndexedValues (H.parseCsvLine str)
 
--- [Vect] to String
+-- [Vect] to IO ()
+-- Print [Vect] nicely
 -- https://stackoverflow.com/questions/26546523/print-2d-list-of-lists-in-haskell
 vectListToCsv :: [Vect] -> IO ()
 vectListToCsv xxs
