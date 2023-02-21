@@ -2,7 +2,9 @@
 module Kmeans (
     distanceFromCentroids,
     giveRandomCentroids,
-    assignCluster
+    assignCluster,
+    clusterizeClusters,
+    calculateNewCentroids
 ) where
 
 import System.Random
@@ -20,15 +22,23 @@ distanceFromCentroids fts = map (DP.euclideanDistanceList fts)
 assignCluster :: [DP.Vect] -> [DP.Cluster]
 assignCluster = map minElemIdx
 
--- Get index of max element in list
-maxElemIdx :: (Ord a, Eq a) => [a] -> Int
-maxElemIdx [] = -1
-maxElemIdx xs = maxElemIdx' xs 0
+-- [(Vect, Cluster)] clusterized data
+-- numer of clusters
+-- dimension of vectors
+calculateNewCentroids :: [(DP.Vect, DP.Cluster)] -> Int -> Int -> [DP.Vect]
+calculateNewCentroids [] k dim = replicate k (replicate dim 0)  -- create k zero vectors with dimension of dim
+calculateNewCentroids (x:xs) k dim = prev_values_pre ++ [cur_value `DP.vp` val] ++ prev_values_last
     where
-        maxElemIdx' (z:zs) n
-            | z == maxElem  = n
-            | otherwise     = maxElemIdx' zs (n+1)
-        maxElem = maxInList xs
+        val = fst x
+        idx = snd x
+        prev_values = calculateNewCentroids xs k dim
+        prev_values_pre = take idx prev_values
+        prev_values_last = drop (idx+1) prev_values
+        cur_value = prev_values !! idx
+
+clusterizeClusters :: [DP.Vect] -> [DP.Cluster] -> [(DP.Vect, DP.Cluster)]
+clusterizeClusters = zip
+
 
 minElemIdx :: (Ord a, Eq a) => [a] -> Int
 minElemIdx [] = -1
@@ -38,12 +48,6 @@ minElemIdx xs = minElemIdx' xs 0
             | z == minElem  = n
             | otherwise     = minElemIdx' zs (n+1)
         minElem = minInList xs
-
--- Get max element in list
-maxInList :: (Ord a, Eq a) => [a] -> a
-maxInList [] = error "Empty list"
-maxInList [a] = a
-maxInList (x:xs) = max x (maxInList xs)
 
 -- Get min element in list
 minInList :: (Ord a, Eq a) => [a] -> a

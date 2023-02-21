@@ -38,9 +38,11 @@ main = do
     let clusters = read k :: Int
     let selected_data = map (`DP.csvToVect` selected_features) (drop 1 $ lines content)
     let centroids = K.giveRandomCentroids selected_data (read k) seed
+    let featureCount = length (head selected_data)
+    let dataCount = length selected_data
 
     -- Show dataset dims and random gen. seed
-    putStrLn ("Dataset length: " ++ show (length selected_data) ++ "x" ++ show (length (head selected_data)))
+    putStrLn ("Dataset length: " ++ show dataCount ++ "x" ++ show featureCount)
     putStrLn ("Seed: " ++ show seed)
 
     -- Show samples centroids
@@ -51,11 +53,12 @@ main = do
     putStrLn "Distance from centroids:"
     let distFromCentroid = K.distanceFromCentroids centroids selected_data
     putStrLn ("Size: " ++ show (length distFromCentroid) ++ "x" ++ show (length (head distFromCentroid)))
-    distFromCentr <- DP.vectListToIO distFromCentroid
+    -- distFromCentr <- DP.vectListToIO distFromCentroid
 
     -- Calc cluster where data belong
     let dataBelongTo = K.assignCluster distFromCentroid
-    print dataBelongTo
+    let clusterizedData = K.clusterizeClusters selected_data dataBelongTo
+    print $ K.calculateNewCentroids clusterizedData clusters featureCount
 
     -- close file
     hClose handle
