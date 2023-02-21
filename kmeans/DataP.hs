@@ -4,7 +4,7 @@ module DataP (
     euclideanDistance,
     euclideanDistanceList,
     csvToVect,
-    vectListToCsv,
+    vectListToIO,
 ) where
 
 import qualified Helpers as H
@@ -50,8 +50,8 @@ csvToVect str = map (\x -> read x::Float) . H.getIndexedValues (H.parseCsvLine s
 -- [Vect] to IO ()
 -- Print [Vect] nicely
 -- https://stackoverflow.com/questions/26546523/print-2d-list-of-lists-in-haskell
-vectListToCsv :: [Vect] -> IO ()
-vectListToCsv xxs
+vectListToIO :: [Vect] -> IO ()
+vectListToIO xxs
     | length (nub [length xs | xs <- xxs])/=1 = error "not simetric"
     | otherwise = mapM_ printRow xxs
         where printRow xs = mapM_ print_ xs >> putStrLn ""

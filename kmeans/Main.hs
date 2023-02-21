@@ -29,12 +29,33 @@ main = do
     let selected_features = map (\x -> read x :: Int) (H.parseCsvLine sel_features)
     putStrLn ("Selected features: " ++ intercalate ", " (H.getIndexedValues features selected_features))
 
+    -- Input number of clusters
     putStrLn "Number of clusters (K): "
     k <- getLine
     putStrLn ("Number of clusters (K): " ++ k)
+
+    -- Create data vector and sample centroids from data
     let clusters = read k :: Int
     let selected_data = map (`DP.csvToVect` selected_features) (drop 1 $ lines content)
-    putStrLn ("Dataset length: " ++ show (length selected_data) ++ "x" ++ show (length (selected_data !! 1)))
+    let centroids = K.giveRandomCentroids selected_data (read k) seed
+
+    -- Show dataset dims and random gen. seed
+    putStrLn ("Dataset length: " ++ show (length selected_data) ++ "x" ++ show (length (head selected_data)))
+    putStrLn ("Seed: " ++ show seed)
+
+    -- Show samples centroids
+    putStrLn "Centroids: "
+    centroidsString <- DP.vectListToIO centroids
+
+    -- Calc dist from centroids
+    putStrLn "Distance from centroids:"
+    let distFromCentroid = K.distanceFromCentroids centroids selected_data
+    putStrLn ("Size: " ++ show (length distFromCentroid) ++ "x" ++ show (length (head distFromCentroid)))
+    distFromCentr <- DP.vectListToIO distFromCentroid
+
+    -- Calc cluster where data belong
+    let dataBelongTo = K.assignCluster distFromCentroid
+    print dataBelongTo
 
     -- close file
     hClose handle
