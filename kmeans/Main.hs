@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Use print" #-}
 module Main where
 
 import System.IO
@@ -16,11 +18,11 @@ main = do
     filePath <- getLine
 
     -- Open and read file
-    handle <- openFile filePath ReadMode
-    content <- hGetContents handle
+    rHandle <- openFile filePath ReadMode
+    rContent <- hGetContents rHandle
 
     -- Display features
-    let features = H.parseCsvLine . unlines . take 1 $ lines content
+    let features = H.parseCsvLine . unlines . take 1 $ lines rContent
     putStrLn ("Features\n" ++ intercalate ", " features)
 
     -- Select features (separate with comma)
@@ -35,30 +37,18 @@ main = do
     putStrLn ("Number of clusters (K): " ++ k)
 
     -- Create data vector and sample centroids from data
-    let clusters = read k :: Int
-    let selected_data = map (`DP.csvToVect` selected_features) (drop 1 $ lines content)
-    let centroids = K.giveRandomCentroids selected_data (read k) seed
-    let featureCount = length (head selected_data)
-    let dataCount = length selected_data
+    let clustersCount = read k :: Int
+    let selectedData = map (`DP.csvToVect` selected_features) (drop 1 $ lines rContent)
+    let featureCount = length (head selectedData)
+    let dataCount = length selectedData
 
     -- Show dataset dims and random gen. seed
     putStrLn ("Dataset length: " ++ show dataCount ++ "x" ++ show featureCount)
     putStrLn ("Seed: " ++ show seed)
 
-    -- Show samples centroids
-    putStrLn "Centroids: "
-    centroidsString <- DP.vectListToIO centroids
-
-    -- Calc dist from centroids
-    putStrLn "Distance from centroids:"
-    let distFromCentroid = K.distanceFromCentroids centroids selected_data
-    putStrLn ("Size: " ++ show (length distFromCentroid) ++ "x" ++ show (length (head distFromCentroid)))
-
-    -- Calc cluster where data belong
-    let dataBelongTo = K.assignCluster distFromCentroid
-    let clusterizedData = K.clusterizeClusters selected_data dataBelongTo
-    print $ K.calculateNewCentroids clusterizedData clusters featureCount
+    let res = map show $ K.kmeans selectedData clustersCount seed 100
+    writeFile "../out/cents.csv" (unlines res)
 
     -- close file
-    hClose handle
+    hClose rHandle
 

@@ -7,8 +7,12 @@ module Kmeans (
     giveRandomCentroids,
     assignCluster,
     clusterizeClusters,
-    calculateNewCentroids
+    calculateNewCentroids,
+    kmeans
 ) where
+
+import System.Random
+import qualified DataP as DP
 
 -- Pipeline (how to perform first iteration)
     -- calculateNewCentroids clusterizedData clusters featureCount
@@ -17,8 +21,22 @@ module Kmeans (
                 -- distanceFromCentroids centroids selected_data
                     -- giveRandomCentroids selected_data k seed
 
-import System.Random
-import qualified DataP as DP
+-- [Vect] selected_data -- containing only desired features
+-- Int                  -- number of clusters
+-- Int                  -- seed for random number generator
+-- Int                  -- number of iterations
+kmeans :: [DP.Vect] -> Int -> Int -> Int -> [DP.Cluster]
+kmeans _sData _k _seed _reqIters = kmeans' _sData _k _seed _reqIters 0 []
+    where
+        kmeans' sData k seed reqIters curIter centroids
+            | reqIters >= curIter   = asignedClusters
+            | otherwise             = kmeans' sData k seed reqIters (curIter+1) newCentroids
+            where
+                dim                 = length (head sData)
+                centroids           = if curIter == 0 then giveRandomCentroids sData k seed else centroids
+                asignedClusters     = assignCluster $ distanceFromCentroids centroids sData
+                clusterizedClusters = clusterizeClusters sData asignedClusters
+                newCentroids        = calculateNewCentroids clusterizedClusters k dim
 
 -- Assuming data looks like this
 -- Data x Features (eg. 200 x 2, 200 samples with 2 features)
