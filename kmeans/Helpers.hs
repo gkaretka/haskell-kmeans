@@ -1,11 +1,32 @@
 module Helpers (
     parseCsvLine,
-    getIndexedValues
+    getIndexedValues,
+    listListToCsvString,
+    listToCsvString,
+    listToNewLine
 ) where
 
 -- Separate CSV string to [String]
 parseCsvLine :: String -> [String]
 parseCsvLine = words . foldr (\x acc -> if x == ',' then ' ' : acc else x : acc) []
+
+-- Csv/new line output helpers
+listListToCsvString :: (Show a) => [[a]] -> String
+listListToCsvString []      = ""
+listListToCsvString (x:xs)  = take (length concatedX - 1) concatedX ++ ['\n'] ++ listToCsvString xs
+    where concatedX = concatMap (\x -> rmq $ show x ++ ",") x
+
+listToNewLine :: (Show a) => [[a]] -> String
+listToNewLine []      = ""
+listToNewLine (x:xs)  = take (length concatedX - 1) concatedX ++ ['\n'] ++ listToNewLine xs
+    where concatedX = concatMap (\x -> rmq $ show x ++ ",") x
+
+listToCsvString :: (Show a) => [a] -> String
+listToCsvString x = take (length concatedX - 1) concatedX
+    where concatedX = concatMap (\x -> rmq $ show x ++ ",") x
+
+rmq :: String -> String
+rmq = filter (/='"')
 
 -- Get only desired indexes of array
 -- ["a", "b", "c"] [0, 2] -> ["a", "c"]

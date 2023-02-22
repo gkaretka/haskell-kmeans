@@ -25,11 +25,11 @@ import qualified DataP as DP
 -- Int                  -- number of clusters
 -- Int                  -- seed for random number generator
 -- Int                  -- number of iterations
-kmeans :: [DP.Vect] -> Int -> Int -> Int -> [DP.Cluster]
+kmeans :: [DP.Vect] -> Int -> Int -> Int -> ([DP.Cluster],[DP.Vect])
 kmeans _sData _k _seed _reqIters = kmeans' _sData _k _seed _reqIters 0 []
     where
         kmeans' sData k seed reqIters curIter centroids
-            | reqIters >= curIter   = asignedClusters
+            | reqIters >= curIter   = (asignedClusters, newCentroids)
             | otherwise             = kmeans' sData k seed reqIters (curIter+1) newCentroids
             where
                 dim                 = length (head sData)
@@ -59,7 +59,7 @@ calculateNewCentroids xs k dim = map (\x -> fst x `DP.vdiv` (fromIntegral $ snd 
 -- numer of clusters
 -- [(Vect, Int)] -- sum point as vector + count of points
 calculateNewCentroids' :: [(DP.Vect, DP.Cluster)] -> Int -> Int -> [(DP.Vect, Int)]
-calculateNewCentroids' [] k dim = replicate k (replicate dim 0,0)  -- create k zero vectors with dimension of dim
+calculateNewCentroids' [] k dim     = replicate k (replicate dim 0,0)  -- create k zero vectors with dimension of dim
 calculateNewCentroids' (x:xs) k dim = prev_values_pre ++ [(cur_value_val `DP.vp` val, cur_value_cnt+1)] ++ prev_values_last
     where
         val = fst x
@@ -87,8 +87,8 @@ minElemIdx xs = minElemIdx' xs 0
 
 -- Get min element in list
 minInList :: (Ord a, Eq a) => [a] -> a
-minInList [] = error "Empty list"
-minInList [a] = a
+minInList []    = error "Empty list"
+minInList [a]   = a
 minInList (x:xs) = min x (minInList xs)
 
 -- Give k random centroid

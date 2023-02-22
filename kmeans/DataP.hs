@@ -23,21 +23,21 @@ euclideanDistance a b = vnorm (a `vm` b)
 
 -- Euclidean  distance between list of vectors and vector (point)
 euclideanDistanceList :: [Vect] -> Vect -> [Float]
-euclideanDistanceList [] _ = []
-euclideanDistanceList dat pt = map (euclideanDistance pt) dat
+euclideanDistanceList [] _      = []
+euclideanDistanceList dat pt    = map (euclideanDistance pt) dat
 
 -- Vector addition (5, 1, 3) + (4, 9, 3) = (9, 10, 6)
 vp :: Vect -> Vect -> Vect
-vp [] [] = []
-vp [] _ = []
-vp _ [] = []
+vp [] []    = []
+vp [] _     = []
+vp _ []     = []
 vp (x:xs) (y:ys) = (x+y) : vp xs ys
 
 -- Vector subtraction (5, 1, 3) - (4, 9, 3) = (-1, -8, 0)
 vm :: Vect -> Vect -> Vect
-vm [] [] = []
-vm [] _ = []
-vm _ [] = []
+vm [] []    = []
+vm [] _     = []
+vm _ []     = []
 vm (x:xs) (y:ys) = (x-y) : vm xs ys
 
 vdiv :: Vect -> Float -> Vect

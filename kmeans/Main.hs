@@ -1,5 +1,7 @@
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 {-# HLINT ignore "Use print" #-}
+{-# HLINT ignore "Use zipWith" #-}
+{-# HLINT ignore "Move brackets to avoid $" #-}
 module Main where
 
 import System.IO
@@ -28,8 +30,9 @@ main = do
     -- Select features (separate with comma)
     putStrLn ("Select features 0 - " ++ show ((+) (-1) $ length features) ++ " (eg. 1,3,5)")
     sel_features <- getLine
-    let selected_features = map (\x -> read x :: Int) (H.parseCsvLine sel_features)
-    putStrLn ("Selected features: " ++ intercalate ", " (H.getIndexedValues features selected_features))
+    let selectedFeatures = map (\x -> read x :: Int) (H.parseCsvLine sel_features)
+    let selectedFeaturesString = intercalate ", " (H.getIndexedValues features selectedFeatures)
+    putStrLn ("Selected features: " ++ selectedFeaturesString)
 
     -- Input number of clusters
     putStrLn "Number of clusters (K): "
@@ -38,7 +41,7 @@ main = do
 
     -- Create data vector and sample centroids from data
     let clustersCount = read k :: Int
-    let selectedData = map (`DP.csvToVect` selected_features) (drop 1 $ lines rContent)
+    let selectedData = map (`DP.csvToVect` selectedFeatures) (drop 1 $ lines rContent)
     let featureCount = length (head selectedData)
     let dataCount = length selectedData
 
@@ -46,8 +49,14 @@ main = do
     putStrLn ("Dataset length: " ++ show dataCount ++ "x" ++ show featureCount)
     putStrLn ("Seed: " ++ show seed)
 
-    let res = map show $ K.kmeans selectedData clustersCount seed 100
-    writeFile "../out/cents.csv" (unlines res)
+    -- ([Cluster, [Vect]])
+    let result = K.kmeans selectedData clustersCount seed 100
+
+    writeFile "out/cluster_info.csv" $ filter (/= ' ') selectedFeaturesString ++ ",ClusterID\n" 
+        ++ (H.listToNewLine $ zipWith (\x y -> [H.listToCsvString x, show y]) selectedData (fst result))
+
+    writeFile "out/cluster_position.csv" $ ((intercalate "," $ take featureCount ["x", "y", "z", "w", "i", "j", "k"]) ++ "\n")
+        ++ (H.listToNewLine $ snd result)
 
     -- close file
     hClose rHandle
