@@ -1,4 +1,7 @@
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Move brackets to avoid $" #-}
 {-# OPTIONS_GHC -Wno-incomplete-patterns #-}
+
 module Kmeans (
     distanceFromCentroids,
     giveRandomCentroids,
@@ -6,6 +9,13 @@ module Kmeans (
     clusterizeClusters,
     calculateNewCentroids
 ) where
+
+-- Pipeline (how to perform first iteration)
+    -- calculateNewCentroids clusterizedData clusters featureCount
+        -- clusterizeClusters selected_data dataBelongTo
+            -- assignCluster
+                -- distanceFromCentroids centroids selected_data
+                    -- giveRandomCentroids selected_data k seed
 
 import System.Random
 import qualified DataP as DP
@@ -22,19 +32,27 @@ distanceFromCentroids fts = map (DP.euclideanDistanceList fts)
 assignCluster :: [DP.Vect] -> [DP.Cluster]
 assignCluster = map minElemIdx
 
+-- [(vect, int)] points, count
+-- [vect] -- new centroids
+calculateNewCentroids :: [(DP.Vect, DP.Cluster)] -> Int -> Int -> [DP.Vect]
+calculateNewCentroids xs k dim = map (\x -> fst x `DP.vdiv` (fromIntegral $ snd x)) $ calculateNewCentroids' xs k dim
+
 -- [(Vect, Cluster)] clusterized data
 -- numer of clusters
--- dimension of vectors
-calculateNewCentroids :: [(DP.Vect, DP.Cluster)] -> Int -> Int -> [DP.Vect]
-calculateNewCentroids [] k dim = replicate k (replicate dim 0)  -- create k zero vectors with dimension of dim
-calculateNewCentroids (x:xs) k dim = prev_values_pre ++ [cur_value `DP.vp` val] ++ prev_values_last
+-- [(Vect, Int)] -- sum point as vector + count of points
+calculateNewCentroids' :: [(DP.Vect, DP.Cluster)] -> Int -> Int -> [(DP.Vect, Int)]
+calculateNewCentroids' [] k dim = replicate k (replicate dim 0,0)  -- create k zero vectors with dimension of dim
+calculateNewCentroids' (x:xs) k dim = prev_values_pre ++ [(cur_value_val `DP.vp` val, cur_value_cnt+1)] ++ prev_values_last
     where
         val = fst x
         idx = snd x
-        prev_values = calculateNewCentroids xs k dim
+        prev_values = calculateNewCentroids' xs k dim
         prev_values_pre = take idx prev_values
         prev_values_last = drop (idx+1) prev_values
         cur_value = prev_values !! idx
+        cur_value_val = fst cur_value
+        cur_value_cnt = snd cur_value
+
 
 clusterizeClusters :: [DP.Vect] -> [DP.Cluster] -> [(DP.Vect, DP.Cluster)]
 clusterizeClusters = zip

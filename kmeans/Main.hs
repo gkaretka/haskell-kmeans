@@ -53,7 +53,6 @@ main = do
     putStrLn "Distance from centroids:"
     let distFromCentroid = K.distanceFromCentroids centroids selected_data
     putStrLn ("Size: " ++ show (length distFromCentroid) ++ "x" ++ show (length (head distFromCentroid)))
-    -- distFromCentr <- DP.vectListToIO distFromCentroid
 
     -- Calc cluster where data belong
     let dataBelongTo = K.assignCluster distFromCentroid

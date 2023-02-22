@@ -1,6 +1,9 @@
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Avoid lambda using `infix`" #-}
+
 module DataP (
     DPoint, Vect, Cluster,
-    vp, vm, vnorm,
+    vp, vm, vdiv, vnorm,
     euclideanDistance,
     euclideanDistanceList,
     csvToVect,
@@ -36,6 +39,11 @@ vm [] [] = []
 vm [] _ = []
 vm _ [] = []
 vm (x:xs) (y:ys) = (x-y) : vm xs ys
+
+vdiv :: Vect -> Float -> Vect
+vdiv [] 0 = error "Division by zero"
+vdiv [] _ = []
+vdiv xs a = map (\x -> x / a) xs
 
 -- Vector norm (1, 5, 6, ...) = 1^2 + 5^2 + 6^2 ...
 vnorm :: Vect -> Float
