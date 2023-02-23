@@ -2,7 +2,7 @@
 {-# HLINT ignore "Avoid lambda using `infix`" #-}
 
 module DataP (
-    DPoint, Vect, Cluster,
+    DPoint(..), Vect, Cluster,
     vp, vm, vdiv, vnorm,
     euclideanDistance,
     euclideanDistanceList,
@@ -15,7 +15,10 @@ import Data.List
 
 type Cluster = Int
 type Vect = [Float]
-data DPoint = DPoint Vect Cluster deriving (Eq, Ord, Show)
+data DPoint = DPoint {
+    point::Vect,
+    cluster::Cluster
+}deriving (Eq, Ord, Show)
 
 -- Euclidean distance between two vectors (points)
 euclideanDistance :: Vect -> Vect -> Float

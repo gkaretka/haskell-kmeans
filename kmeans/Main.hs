@@ -2,6 +2,7 @@
 {-# HLINT ignore "Use print" #-}
 {-# HLINT ignore "Use zipWith" #-}
 {-# HLINT ignore "Move brackets to avoid $" #-}
+{-# HLINT ignore "Use uncurry" #-}
 module Main where
 
 import System.IO
@@ -49,11 +50,14 @@ main = do
     putStrLn ("Dataset length: " ++ show dataCount ++ "x" ++ show featureCount)
     putStrLn ("Seed: " ++ show seed)
 
-    -- ([Cluster, [Vect]])
+    -- ([DPoint, [Vect]])
     let result = K.kmeans selectedData clustersCount seed 100
+    let sqrDist = K.sumOfSquareDistances (fst result) (snd result)
 
-    writeFile "out/cluster_info.csv" $ filter (/= ' ') selectedFeaturesString ++ ",ClusterID\n" 
-        ++ (H.listToNewLine $ zipWith (\x y -> [H.listToCsvString x, show y]) selectedData (fst result))
+    putStrLn ("Resulting sqruare distance: " ++ show sqrDist)
+
+    writeFile "out/cluster_info.csv" $ filter (/= ' ') selectedFeaturesString ++ ",ClusterID\n"
+        ++ (unlines $ map (\x -> H.listToCsvString (DP.point x) ++ "," ++ (show $ DP.cluster x)) (fst result))
 
     writeFile "out/cluster_position.csv" $ ((intercalate "," $ take featureCount ["x", "y", "z", "w", "i", "j", "k"]) ++ "\n")
         ++ (H.listToNewLine $ snd result)

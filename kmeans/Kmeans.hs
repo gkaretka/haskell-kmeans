@@ -8,7 +8,8 @@ module Kmeans (
     assignCluster,
     clusterizeClusters,
     calculateNewCentroids,
-    kmeans
+    kmeans,
+    sumOfSquareDistances
 ) where
 
 import System.Random
@@ -21,15 +22,16 @@ import qualified DataP as DP
                 -- distanceFromCentroids centroids selected_data
                     -- giveRandomCentroids selected_data k seed
 
--- [Vect] selected_data -- containing only desired features
--- Int                  -- number of clusters
--- Int                  -- seed for random number generator
--- Int                  -- number of iterations
-kmeans :: [DP.Vect] -> Int -> Int -> Int -> ([DP.Cluster],[DP.Vect])
+-- [Vect] selected_data         -- containing only desired features
+-- Int                          -- number of clusters
+-- Int                          -- seed for random number generator
+-- Int                          -- number of iterations
+-- ([DP.Cluster], [DP.Vect])    -- [1..d] clusterIds, [1..k] Cluster centroids
+kmeans :: [DP.Vect] -> Int -> Int -> Int -> ([DP.DPoint], [DP.Vect])
 kmeans _sData _k _seed _reqIters = kmeans' _sData _k _seed _reqIters 0 []
     where
         kmeans' sData k seed reqIters curIter centroids
-            | reqIters >= curIter   = (asignedClusters, newCentroids)
+            | reqIters >= curIter   = (zipWith DP.DPoint _sData asignedClusters, newCentroids)
             | otherwise             = kmeans' sData k seed reqIters (curIter+1) newCentroids
             where
                 dim                 = length (head sData)
@@ -46,6 +48,12 @@ kmeans _sData _k _seed _reqIters = kmeans' _sData _k _seed _reqIters 0 []
 -- [vect] - dist from all centroids
 distanceFromCentroids :: [DP.Vect] -> [DP.Vect] -> [DP.Vect]
 distanceFromCentroids fts = map (DP.euclideanDistanceList fts)
+
+sumOfSquareDistances :: [DP.DPoint] -> [DP.Vect] -> Float
+sumOfSquareDistances points centroids = foldr squareDist 0 points
+    where
+        squareDist pt acc = DP.vnorm (DP.point pt `DP.vm` cPoint)
+            where cPoint = centroids !! DP.cluster pt
 
 assignCluster :: [DP.Vect] -> [DP.Cluster]
 assignCluster = map minElemIdx
@@ -74,7 +82,6 @@ calculateNewCentroids' (x:xs) k dim = prev_values_pre ++ [(cur_value_val `DP.vp`
 
 clusterizeClusters :: [DP.Vect] -> [DP.Cluster] -> [(DP.Vect, DP.Cluster)]
 clusterizeClusters = zip
-
 
 minElemIdx :: (Ord a, Eq a) => [a] -> Int
 minElemIdx [] = -1
