@@ -9,7 +9,8 @@ module Kmeans (
     clusterizeClusters,
     calculateNewCentroids,
     kmeans,
-    sumOfSquareDistances
+    sumOfSquareDistances,
+    sumOfSquareDistancesForRange
 ) where
 
 import System.Random
@@ -48,6 +49,18 @@ kmeans _sData _k _seed _reqIters = kmeans' _sData _k _seed _reqIters 0 []
 -- [vect] - dist from all centroids
 distanceFromCentroids :: [DP.Vect] -> [DP.Vect] -> [DP.Vect]
 distanceFromCentroids fts = map (DP.euclideanDistanceList fts)
+
+-- [Vect] selected_data         -- containing only desired features
+-- [Int]                        -- list of k values to try
+-- Int                          -- seed for random number generator
+-- Int                          -- number of iterations
+-- ([Float])                    -- number of square distances for n-th k
+sumOfSquareDistancesForRange :: [DP.Vect] -> [Int] -> Int -> Int -> [Float]
+sumOfSquareDistancesForRange _ [] _ _ = []
+sumOfSquareDistancesForRange sData k seed reqIters = sumOfSQr : sumOfSquareDistancesForRange sData (tail k) seed reqIters
+    where
+        sumOfSQr = sumOfSquareDistances (fst result) (snd result)
+        result = kmeans sData (head k) seed reqIters
 
 sumOfSquareDistances :: [DP.DPoint] -> [DP.Vect] -> Float
 sumOfSquareDistances points centroids = foldr squareDist 0 points

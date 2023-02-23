@@ -7,18 +7,25 @@ from matplotlib.colors import ListedColormap
 res_df = pd.read_csv('./out/cluster_info.csv', delimiter=',')
 
 # cluster centroids
-red_df_centroids = pd.read_csv('./out/cluster_position.csv', delimiter=',')
+res_df_centroids = pd.read_csv('./out/cluster_position.csv', delimiter=',')
+
+# sum of squares depending on number of clusters
+sum_of_sqr_to_n_of_clusters = pd.read_csv('./out/sum_of_square_for_diffent_k.csv', delimiter=',')
 
 MARKER_SIZE = 100
 
-fig = plt.figure(figsize=(15, 7))
+# plot sum of sqrt depending on number of clusters
+figSums, ax = plt.subplots(figsize=(15,7))
+ax.scatter(sum_of_sqr_to_n_of_clusters['k'], sum_of_sqr_to_n_of_clusters['sumSqrt'], s=MARKER_SIZE)
 
+fig = plt.figure(figsize=(15, 7))
 # 2 features + 1 clustering data
 if res_df.shape[1] == 2+1:
     # for 2D
-    sns.scatterplot(data=res_df, x='Age', y='Annual_Income_(k$)', 
-                    hue='ClusterID', palette=sns.color_palette(), s=MARKER_SIZE)
-    sns.scatterplot(data=red_df_centroids, x='x', y='y', color='red', s=5*MARKER_SIZE)
+    sns.scatterplot(data=res_df, x=res_df.columns[0], y=res_df.columns[1], 
+                    hue=res_df.columns[2], palette=sns.color_palette(), s=MARKER_SIZE)
+
+    sns.scatterplot(data=res_df_centroids, x='x', y='y', color='red', s=5*MARKER_SIZE)
     plt.grid(False)
     plt.title('Clusters of customers')
     plt.xlabel('Annual Income (k$)')
@@ -33,18 +40,18 @@ else:
     fig.add_axes(ax)
     cmap = ListedColormap(sns.color_palette("viridis", 256).as_hex())
 
-    sc = ax.scatter(res_df['Age'],
-            res_df['Annual_Income_(k$)'],
-            res_df['Spending_Score'],
-            c=res_df['ClusterID'],
+    sc = ax.scatter(res_df[res_df.columns[0]],
+            res_df[res_df.columns[1]],
+            res_df[res_df.columns[2]],
+            c=res_df[res_df.columns[3]],
             s=MARKER_SIZE,
             marker='o',
             cmap=cmap,
             alpha=1)
 
-    sc = ax.scatter(red_df_centroids['x'],
-            red_df_centroids['y'],
-            red_df_centroids['z'],
+    sc = ax.scatter(res_df_centroids['x'],
+            res_df_centroids['y'],
+            res_df_centroids['z'],
             c='red',
             s=5*MARKER_SIZE,
             marker='o',
