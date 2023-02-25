@@ -99,8 +99,8 @@ minElemIdx [] = error "Empty list"
 minElemIdx xs = minElemIdx' xs 0
     where
         minElemIdx' (z:zs) n
-            | null zs       = n
             | z == minElem  = n
+            | null zs       = error "Element not in list"
             | otherwise     = minElemIdx' zs (n+1)
         minElem = minInList xs
 
