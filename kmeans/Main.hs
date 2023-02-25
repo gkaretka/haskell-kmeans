@@ -1,8 +1,3 @@
-{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
-{-# HLINT ignore "Use print" #-}
-{-# HLINT ignore "Use zipWith" #-}
-{-# HLINT ignore "Move brackets to avoid $" #-}
-{-# HLINT ignore "Use uncurry" #-}
 module Main where
 
 import System.IO
@@ -68,16 +63,16 @@ main = do
 
     -- Save data clusterization
     writeFile "out/cluster_info.csv" $ filter (/= ' ') selectedFeaturesString ++ ",ClusterID\n"
-        ++ (unlines $ map (\x -> H.listToCsvString (DP.point x) ++ "," ++ (show $ DP.cluster x)) (fst result))
+        ++ unlines (map (\x -> H.listToCsvString (DP.point x) ++ "," ++ show (DP.cluster x)) (fst result))
 
     -- Save info about clusters (coordinates of centroids)
-    writeFile "out/cluster_position.csv" $ ((intercalate "," $ take featureCount ["x", "y", "z", "w", "i", "j", "k"]) ++ "\n")
-        ++ (H.listToNewLine $ snd result)
+    writeFile "out/cluster_position.csv" $ (intercalate "," (take featureCount ["x", "y", "z", "w", "i", "j", "k"]) ++ "\n")
+        ++ H.listToNewLine (snd result)
 
     -- Save sum of square for dirrefent k [1..clustersCount+5]
     let sqrDistList = K.sumOfSquareDistancesForRange selectedData [1..clustersCount+additionalClusterCount] seed iters
     let zipedSqrDistListK = zip [1..clustersCount+additionalClusterCount] sqrDistList
-    let sqrDistListStr = foldl (\acc x -> acc ++ (show $ fst x) ++ "," ++ H.listToCsvString [snd x] ++ "\n") "" zipedSqrDistListK
+    let sqrDistListStr = foldl (\acc x -> acc ++ show (fst x) ++ "," ++ H.listToCsvString [snd x] ++ "\n") "" zipedSqrDistListK
 
     writeFile "out/sum_of_square_for_diffent_k.csv" ("k,sumSqrt\n" ++ sqrDistListStr)
 

@@ -1,5 +1,5 @@
-../data/data.csv
+../data/shoppers/data.csv
 2,3,4
 7
-40
+42
 100

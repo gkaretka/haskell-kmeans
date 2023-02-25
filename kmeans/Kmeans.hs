@@ -1,7 +1,3 @@
-{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
-{-# HLINT ignore "Move brackets to avoid $" #-}
-{-# OPTIONS_GHC -Wno-incomplete-patterns #-}
-
 module Kmeans (
     distanceFromCentroids,
     giveRandomCentroids,
@@ -9,6 +5,7 @@ module Kmeans (
     clusterizeClusters,
     calculateNewCentroids,
     kmeans,
+    minElemIdx,
     sumOfSquareDistances,
     sumOfSquareDistancesForRange
 ) where
@@ -32,14 +29,15 @@ kmeans :: [DP.Vect] -> Int -> Int -> Int -> ([DP.DPoint], [DP.Vect])
 kmeans _sData _k _seed _reqIters = kmeans' _sData _k _seed _reqIters 0 []
     where
         kmeans' sData k seed reqIters curIter centroids
-            | reqIters >= curIter   = (zipWith DP.DPoint _sData asignedClusters, newCentroids)
+            | reqIters >= curIter   = (zipWith DP.DPoint _sData reasignedClusters, newCentroids)
             | otherwise             = kmeans' sData k seed reqIters (curIter+1) newCentroids
             where
                 dim                 = length (head sData)
-                centroids           = if curIter == 0 then giveRandomCentroids sData k seed else centroids
-                asignedClusters     = assignCluster $ distanceFromCentroids centroids sData
+                cents               = if curIter == 0 then giveRandomCentroids sData k seed else centroids
+                asignedClusters     = assignCluster $ distanceFromCentroids cents sData
                 clusterizedClusters = clusterizeClusters sData asignedClusters
                 newCentroids        = calculateNewCentroids clusterizedClusters k dim
+                reasignedClusters   = assignCluster $ distanceFromCentroids newCentroids sData
 
 -- Assuming data looks like this
 -- Data x Features (eg. 200 x 2, 200 samples with 2 features)
@@ -74,7 +72,7 @@ assignCluster = map minElemIdx
 -- [(vect, int)] points, count
 -- [vect] -- new centroids
 calculateNewCentroids :: [(DP.Vect, DP.Cluster)] -> Int -> Int -> [DP.Vect]
-calculateNewCentroids xs k dim = map (\x -> fst x `DP.vdiv` (fromIntegral $ snd x)) $ calculateNewCentroids' xs k dim
+calculateNewCentroids xs k dim = map (\x -> fst x `DP.vdiv` fromIntegral (snd x)) $ calculateNewCentroids' xs k dim
 
 -- [(Vect, Cluster)] clusterized data
 -- numer of clusters
@@ -97,10 +95,11 @@ clusterizeClusters :: [DP.Vect] -> [DP.Cluster] -> [(DP.Vect, DP.Cluster)]
 clusterizeClusters = zip
 
 minElemIdx :: (Ord a, Eq a) => [a] -> Int
-minElemIdx [] = -1
+minElemIdx [] = error "Empty list"
 minElemIdx xs = minElemIdx' xs 0
     where
         minElemIdx' (z:zs) n
+            | null zs       = n
             | z == minElem  = n
             | otherwise     = minElemIdx' zs (n+1)
         minElem = minInList xs

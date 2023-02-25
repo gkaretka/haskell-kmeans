@@ -1,6 +1,3 @@
-{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
-{-# HLINT ignore "Avoid lambda using `infix`" #-}
-
 module DataP (
     DPoint(..), Vect, Cluster,
     vp, vm, vdiv, vnorm,

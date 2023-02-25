@@ -12,7 +12,7 @@ res_df_centroids = pd.read_csv('./out/cluster_position.csv', delimiter=',')
 # sum of squares depending on number of clusters
 sum_of_sqr_to_n_of_clusters = pd.read_csv('./out/sum_of_square_for_diffent_k.csv', delimiter=',')
 
-MARKER_SIZE = 100
+MARKER_SIZE = 30
 
 # plot sum of sqrt depending on number of clusters
 figSums, ax = plt.subplots(figsize=(15,7))
@@ -37,6 +37,7 @@ if res_df.shape[1] == 2+1:
 else:
     # for 3D
     ax = fig.add_subplot(projection='3d')
+
     fig.add_axes(ax)
     cmap = ListedColormap(sns.color_palette("viridis", 256).as_hex())
 
@@ -58,5 +59,6 @@ else:
             alpha=1)
 
     plt.legend(*sc.legend_elements(), bbox_to_anchor=(1.05, 1), loc=2)
+    plt.axis('scaled')
     plt.show()
     # end 3D
