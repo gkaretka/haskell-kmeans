@@ -7,7 +7,7 @@
 if [[ -z $1 ]];
 then
     echo "Empty param ... accessing default"
-    cat ./settings/s0.txt | cabal run
+    cat $1 | ./dist-newstyle/build/x86_64-linux/ghc-8.8.4/kmeans-0.1.0.0/x/kmeans/build/kmeans/kmeans +RTS -N8
 else
     echo "Accessing: $1"
     cat $1 | cabal run

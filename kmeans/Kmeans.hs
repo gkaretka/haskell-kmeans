@@ -11,6 +11,7 @@ module Kmeans (
 ) where
 
 import System.Random
+import Control.Parallel.Strategies
 import qualified DataP as DP
 
 -- Pipeline (how to perform first iteration)
@@ -46,7 +47,7 @@ kmeans _sData _k _seed _reqIters = kmeans' _sData _k _seed _reqIters 0 []
 -- [vect] - features
 -- [vect] - dist from all centroids
 distanceFromCentroids :: [DP.Vect] -> [DP.Vect] -> [DP.Vect]
-distanceFromCentroids fts = map (DP.euclideanDistanceList fts)
+distanceFromCentroids fts = parMap rpar (DP.euclideanDistanceList fts)
 
 -- [Vect] selected_data         -- containing only desired features
 -- [Int]                        -- list of k values to try
@@ -72,7 +73,7 @@ assignCluster = map minElemIdx
 -- [(vect, int)] points, count
 -- [vect] -- new centroids
 calculateNewCentroids :: [(DP.Vect, DP.Cluster)] -> Int -> Int -> [DP.Vect]
-calculateNewCentroids xs k dim = map (\x -> fst x `DP.vdiv` fromIntegral (snd x)) $ calculateNewCentroids' xs k dim
+calculateNewCentroids xs k dim = parMap rpar (\x -> fst x `DP.vdiv` fromIntegral (snd x)) $ calculateNewCentroids' xs k dim
 
 -- [(Vect, Cluster)] clusterized data
 -- numer of clusters
