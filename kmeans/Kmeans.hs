@@ -115,17 +115,14 @@ minInList (x:xs) = min x (minInList xs)
 -- xs, k, seed
 giveRandomCentroids :: (Eq a) => [a] -> Int -> Int -> [a]
 giveRandomCentroids [] _ _ = []
-giveRandomCentroids xs k seed = giveRandomCentroids' xs k seed []
+giveRandomCentroids xs k seed = giveRandomCentroids' xs k (mkStdGen seed) []
     where
-        giveRandomCentroids' xs' k' seed' cents'
+        giveRandomCentroids' xs' k' gen cents'
             | null xs'              = cents'
             | length cents' >= k'   = cents'
-            | otherwise             = giveRandomCentroids' (filter (\x -> x `notElem` (cent:cents')) xs') k' (seed'+1) (cent:cents')
-            where cent = giveRandomElement xs' seed'
+            | otherwise             = giveRandomCentroids' (filter (\x -> x `notElem` (cent:cents')) xs') k' newGen (cent:cents')
+            where
+                cent = xs' !! elemIdx
+                n = length xs'
+                (elemIdx, newGen) = randomR (0, n-1) gen
 
--- Randomly select centroids
-giveRandomElement :: [a] -> Int -> a
-giveRandomElement xs seed = (!!) xs rand
-    where
-        n = length xs
-        (rand, _) = randomR (0, n-1) (mkStdGen seed)

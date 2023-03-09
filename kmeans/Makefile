@@ -16,3 +16,15 @@ test2:
 test3:
 	./start.sh ./settings/s3.txt
 	python visualisation.py
+
+test4:
+	./start.sh ./settings/s4.txt
+	python visualisation.py
+
+test5:
+	./start.sh ./settings/s5.txt
+	python visualisation.py
+
+test6:
+	./start.sh ./settings/s6.txt
+	python visualisation.py
