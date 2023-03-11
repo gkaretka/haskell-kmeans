@@ -5,16 +5,16 @@ module Kmeans (
     clusterizeClusters,
     calculateNewCentroids,
     kmeans,
-    minElemIdx,
+    fstMinElemIdx,
     sumOfSquareDistances,
     sumOfSquareDistancesForRange
 ) where
 
 import System.Random
-import Control.Parallel.Strategies
+-- import Control.Parallel.Strategies
 import qualified DataP as DP
 
--- Pipeline (how to perform first iteration)
+-- Pipeline (how to perform from first iteration)
     -- calculateNewCentroids clusterizedData clusters featureCount
         -- clusterizeClusters selected_data dataBelongTo
             -- assignCluster
@@ -47,7 +47,7 @@ kmeans _sData _k _seed _reqIters = kmeans' _sData _k _seed _reqIters 0 []
 -- [vect] - features
 -- [vect] - dist from all centroids
 distanceFromCentroids :: [DP.Vect] -> [DP.Vect] -> [DP.Vect]
-distanceFromCentroids fts = parMap rpar (DP.euclideanDistanceList fts)
+distanceFromCentroids fts = map (DP.euclideanDistanceList fts)
 
 -- [Vect] selected_data         -- containing only desired features
 -- [Int]                        -- list of k values to try
@@ -68,12 +68,12 @@ sumOfSquareDistances points centroids = foldr squareDist 0 points
             where cPoint = centroids !! DP.cluster pt
 
 assignCluster :: [DP.Vect] -> [DP.Cluster]
-assignCluster = map minElemIdx
+assignCluster = map fstMinElemIdx
 
 -- [(vect, int)] points, count
--- [vect] -- new centroids
+-- [vect] -- new centroids (calculating average from vectors and number of vectors)
 calculateNewCentroids :: [(DP.Vect, DP.Cluster)] -> Int -> Int -> [DP.Vect]
-calculateNewCentroids xs k dim = parMap rpar (\x -> fst x `DP.vdiv` fromIntegral (snd x)) $ calculateNewCentroids' xs k dim
+calculateNewCentroids xs k dim = map (\x -> fst x `DP.vdiv` fromIntegral (snd x)) $ calculateNewCentroids' xs k dim
 
 -- [(Vect, Cluster)] clusterized data
 -- numer of clusters
@@ -82,34 +82,34 @@ calculateNewCentroids' :: [(DP.Vect, DP.Cluster)] -> Int -> Int -> [(DP.Vect, In
 calculateNewCentroids' [] k dim     = replicate k (replicate dim 0,0)  -- create k zero vectors with dimension of dim
 calculateNewCentroids' (x:xs) k dim = prev_values_pre ++ [(cur_value_val `DP.vp` val, cur_value_cnt+1)] ++ prev_values_last
     where
-        val = fst x
-        idx = snd x
-        prev_values = calculateNewCentroids' xs k dim
-        prev_values_pre = take idx prev_values
-        prev_values_last = drop (idx+1) prev_values
-        cur_value = prev_values !! idx
-        cur_value_val = fst cur_value
-        cur_value_cnt = snd cur_value
+        val = fst x                                     -- vector [x_1,x_2, ..., x_m]
+        idx = snd x                                     -- cluster it belongs to
+        prev_values = calculateNewCentroids' xs k dim   -- previous [(cluster info)]
+        prev_values_pre = take idx prev_values          -- take cluster info (1,2 ... without N)
+        prev_values_last = drop (idx+1) prev_values     -- drop cluster info (without N ... N+1, N+2)
+        cur_value = prev_values !! idx                  -- just cluster info of N
+        cur_value_val = fst cur_value                   -- sum of vectors from cluster so far
+        cur_value_cnt = snd cur_value                   -- count of vectors from cluster so far
 
 
 clusterizeClusters :: [DP.Vect] -> [DP.Cluster] -> [(DP.Vect, DP.Cluster)]
 clusterizeClusters = zip
 
-minElemIdx :: (Ord a, Eq a) => [a] -> Int
-minElemIdx [] = error "Empty list"
-minElemIdx xs = minElemIdx' xs 0
-    where
-        minElemIdx' (z:zs) n
-            | z == minElem  = n
-            | null zs       = error "Element not in list"
-            | otherwise     = minElemIdx' zs (n+1)
-        minElem = minInList xs
+fstMinElemIdx :: (Ord a, Eq a) => [a] -> Int
+fstMinElemIdx = someElemIdx (>=)
 
--- Get min element in list
-minInList :: (Ord a, Eq a) => [a] -> a
-minInList []    = error "Empty list"
-minInList [a]   = a
-minInList (x:xs) = min x (minInList xs)
+-- Takes last element occurance
+someElemIdx :: (Ord a, Eq a) => (a -> a -> Bool) -> [a] -> Int
+someElemIdx _ []   = error "Empty list"
+someElemIdx f xs   = snd (minElemIdx' xs 0)
+    where
+        minElemIdx' [] _        = error "Empty list"
+        minElemIdx' [a] cid     = (a, cid)
+        minElemIdx' (x:xs) cid  = if prev_val `f` x then (x, cid) else (prev_val, prev_idx)
+            where
+                prev_min_tup    = minElemIdx' xs (cid+1)
+                prev_val        = fst prev_min_tup
+                prev_idx        = snd prev_min_tup
 
 -- Give k random centroid
 -- Works funky - might shuffle your data
