@@ -19,7 +19,7 @@ type Vect = [Float]
 data DPoint = DPoint {
     point::Vect,
     cluster::Cluster
-}deriving (Eq, Ord, Show)
+} deriving (Eq, Ord, Show)
 
 -- Euclidean distance between two vectors (points)
 euclideanDistance :: Vect -> Vect -> Float
@@ -44,6 +44,7 @@ vm [] _     = []
 vm _ []     = []
 vm (x:xs) (y:ys) = (x-y) : vm xs ys
 
+-- Divide all values in vector by scalar
 vdiv :: Vect -> Float -> Vect
 vdiv [] 0 = error "Division by zero"
 vdiv [] _ = []
