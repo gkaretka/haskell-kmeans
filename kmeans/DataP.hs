@@ -1,10 +1,14 @@
+-- Project: Kmeans
+-- Login: xkaret00
+-- Name: Gregor Karetka
+-- Year: 2023
+
 module DataP (
     DPoint(..), Vect, Cluster,
     vp, vm, vdiv, vnorm,
     euclideanDistance,
     euclideanDistanceList,
     csvToVect,
-    vectListToIO,
 ) where
 
 import qualified Helpers as H
@@ -43,7 +47,7 @@ vm (x:xs) (y:ys) = (x-y) : vm xs ys
 vdiv :: Vect -> Float -> Vect
 vdiv [] 0 = error "Division by zero"
 vdiv [] _ = []
-vdiv xs a = map (\x -> x / a) xs
+vdiv xs a = map (/ a) xs
 
 -- Vector norm (1, 5, 6, ...) = 1^2 + 5^2 + 6^2 ...
 vnorm :: Vect -> Float
@@ -54,13 +58,3 @@ vnorm xs = sum $ map (^2) xs
 -- "1,5,6,7" [0,1,3] -> [1, 5, 7]
 csvToVect :: String -> [Int] -> Vect
 csvToVect str = map (\x -> read x::Float) . H.getIndexedValues (H.parseCsvLine str)
-
--- [Vect] to IO ()
--- Print [Vect] nicely
--- https://stackoverflow.com/questions/26546523/print-2d-list-of-lists-in-haskell
-vectListToIO :: [Vect] -> IO ()
-vectListToIO xxs
-    | length (nub [length xs | xs <- xxs])/=1 = error "not simetric"
-    | otherwise = mapM_ printRow xxs
-        where printRow xs = mapM_ print_ xs >> putStrLn ""
-              print_ x =  putStr $ show x ++ "\t"

@@ -1,3 +1,8 @@
+-- Project: Kmeans
+-- Login: xkaret00
+-- Name: Gregor Karetka
+-- Year: 2023
+
 module Kmeans (
     distanceFromCentroids,
     giveRandomCentroids,
@@ -11,7 +16,6 @@ module Kmeans (
 ) where
 
 import System.Random
--- import Control.Parallel.Strategies
 import qualified DataP as DP
 
 -- Pipeline (how to perform from first iteration)

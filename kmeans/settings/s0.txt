@@ -1,4 +1,4 @@
-../data/shoppers/data.csv
+./data/shoppers/data.csv
 2,3,4
 7
 40

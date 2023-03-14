@@ -1,4 +1,4 @@
-../data/obesity/data.csv
+./data/obesity/data.csv
 1,2,3
 2
 40

@@ -1,5 +1,5 @@
-../data/ecommerce/data.csv
-1,4,5
-5
+./data/wine/data.csv
+8,13,18
+2
 45
-10
+100

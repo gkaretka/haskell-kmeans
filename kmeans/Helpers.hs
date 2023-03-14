@@ -1,3 +1,8 @@
+-- Project: Kmeans
+-- Login: xkaret00
+-- Name: Gregor Karetka
+-- Year: 2023
+
 module Helpers (
     parseCsvLine,
     getIndexedValues,

@@ -1,4 +1,4 @@
-../data/wholesale/data.csv
+./data/wholesale/data.csv
 2,3,4
 6
 41
