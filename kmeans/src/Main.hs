@@ -11,6 +11,7 @@ import qualified Helpers as H
 import qualified DataP as DP
 import qualified Kmeans as K
 
+additionalClusterCount :: Int
 additionalClusterCount = 5
 
 main :: IO ()
@@ -61,7 +62,7 @@ main = do
 
     -- ([DPoint, [Vect]])
     let result = K.kmeans selectedData clustersCount seed iters
-    let sqrDist = K.sumOfSquareDistances (fst result) (snd result)
+    let sqrDist = uncurry K.sumOfSquareDistances result
 
     -- Show resulting square distance for current k
     putStrLn ("Resulting sqruare distance: " ++ show sqrDist)

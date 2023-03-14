@@ -10,13 +10,13 @@ module Kmeans (
     clusterizeClusters,
     calculateNewCentroids,
     kmeans,
-    fstMinElemIdx,
     sumOfSquareDistances,
     sumOfSquareDistancesForRange
 ) where
 
 import System.Random
 import qualified DataP as DP
+import qualified Helpers as H
 
 -- Pipeline (how to perform from first iteration)
     -- calculateNewCentroids clusterizedData clusters featureCount
@@ -59,17 +59,17 @@ sumOfSquareDistancesForRange :: [DP.Vect] -> [Int] -> Int -> Int -> [Float]
 sumOfSquareDistancesForRange _ [] _ _ = []
 sumOfSquareDistancesForRange sData k seed reqIters = sumOfSQr : sumOfSquareDistancesForRange sData (tail k) seed reqIters
     where
-        sumOfSQr = sumOfSquareDistances (fst result) (snd result)
+        sumOfSQr = uncurry sumOfSquareDistances result
         result = kmeans sData (head k) seed reqIters
 
 sumOfSquareDistances :: [DP.DPoint] -> [DP.Vect] -> Float
-sumOfSquareDistances points centroids = foldr squareDist 0 points
+sumOfSquareDistances points centroids = foldr (\x acc -> squareDist x + acc) 0 points
     where
-        squareDist pt acc = DP.vnorm (DP.point pt `DP.vm` cPoint)
+        squareDist pt = DP.vnorm (DP.point pt `DP.vm` cPoint)
             where cPoint = centroids !! DP.cluster pt
 
 assignCluster :: [DP.Vect] -> [DP.Cluster]
-assignCluster = map fstMinElemIdx
+assignCluster = map H.fstMinElemIdx
 
 -- [(vect, int)] points, count
 -- [vect] -- new centroids (calculating average from vectors and number of vectors)
@@ -96,33 +96,17 @@ calculateNewCentroids' (x:xs) k dim = prev_values_pre ++ [(cur_value_val `DP.vp`
 clusterizeClusters :: [DP.Vect] -> [DP.Cluster] -> [(DP.Vect, DP.Cluster)]
 clusterizeClusters = zip
 
-fstMinElemIdx :: (Ord a, Eq a) => [a] -> Int
-fstMinElemIdx = someElemIdx (>=)
-
--- Takes last element occurance
-someElemIdx :: (Ord a, Eq a) => (a -> a -> Bool) -> [a] -> Int
-someElemIdx _ []   = error "Empty list"
-someElemIdx f xs   = snd (minElemIdx' xs 0)
-    where
-        minElemIdx' [] _        = error "Empty list"
-        minElemIdx' [a] cid     = (a, cid)
-        minElemIdx' (x:xs) cid  = if prev_val `f` x then (x, cid) else (prev_val, prev_idx)
-            where
-                prev_min_tup    = minElemIdx' xs (cid+1)
-                prev_val        = fst prev_min_tup
-                prev_idx        = snd prev_min_tup
-
 -- Give k random centroid
 -- Works funky - might shuffle your data
 -- xs, k, seed
 giveRandomCentroids :: (Eq a) => [a] -> Int -> Int -> [a]
 giveRandomCentroids [] _ _ = []
-giveRandomCentroids xs k seed = giveRandomCentroids' xs k (mkStdGen seed) []
+giveRandomCentroids xs k seed = giveRandomCentroids' xs (mkStdGen seed) []
     where
-        giveRandomCentroids' xs' k' gen cents'
+        giveRandomCentroids' xs' gen cents'
             | null xs'              = cents'
-            | length cents' >= k'   = cents'
-            | otherwise             = giveRandomCentroids' (filter (\x -> x `notElem` (cent:cents')) xs') k' newGen (cent:cents')
+            | length cents' >= k   = cents'
+            | otherwise             = giveRandomCentroids' (filter (\x -> x `notElem` (cent:cents')) xs') newGen (cent:cents')
             where
                 cent = xs' !! elemIdx
                 n = length xs'

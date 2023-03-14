@@ -1,6 +1,6 @@
 # build
 make:
-	cabal build
+	cabal build --with-ghc ghc-9.2.5
 
 # delete output dir and build dir
 clean:

@@ -12,7 +12,6 @@ module DataP (
 ) where
 
 import qualified Helpers as H
-import Data.List
 
 type Cluster = Int
 type Vect = [Float]
@@ -53,7 +52,7 @@ vdiv xs a = map (/ a) xs
 -- Vector norm (1, 5, 6, ...) = 1^2 + 5^2 + 6^2 ...
 vnorm :: Vect -> Float
 vnorm [] = 0
-vnorm xs = sum $ map (^2) xs
+vnorm xs = sum $ map (** 2) xs
 
 -- String csv to vector (select only desired features)
 -- "1,5,6,7" [0,1,3] -> [1, 5, 7]
