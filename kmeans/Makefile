@@ -2,10 +2,15 @@
 make:
 	cabal build
 
+# delete output dir and build dir
+clean:
+	rm -rf ./out/* && rm -rf dist-newstyle
+
 # dataset 1
 test0:
 	cat ./settings/s0.txt | cabal run
 
+# dataset 1 with only two features
 test0_2D:
 	cat ./settings/s0_2d.txt | cabal run
 
@@ -29,8 +34,10 @@ test4:
 test5:
 	cat ./settings/s5.txt | cabal run
 
+# aks for parameters via stdin
 standalone:
 	cabal run
 
+# show python visualization
 vis:
 	python visualisation.py
