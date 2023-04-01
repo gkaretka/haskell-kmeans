@@ -65,7 +65,7 @@ main = do
     let sqrDist = uncurry K.sumOfSquareDistances result
 
     -- Show resulting square distance for current k
-    putStrLn ("Resulting sqruare distance: " ++ show sqrDist)
+    putStrLn ("Resulting square distance: " ++ show sqrDist)
 
     -- Save data clusterization
     writeFile "out/cluster_info.csv" $ filter (/= ' ') selectedFeaturesString ++ ",ClusterID\n"
